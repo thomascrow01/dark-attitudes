@@ -192,7 +192,7 @@ var userLevel = {
 };
 var keyCD = {};
 
-var currentLevel = 0
+var currentLevel = 0;
 var deaths = 0;
 var inUserLevel = false;
 
@@ -239,6 +239,10 @@ var gameMenuState = {
     preload: function () {
     },
     init: function() {
+        document.getElementById('audio0').play();
+            document.getElementById('audio1').pause();
+            document.getElementById('audio4').pause();
+            document.getElementById('audio8').pause();
         this.titleText = game.make.text(game.world.centerX, game.world.centerY, "Dark attitudes.", {
             font: 'bold 40px monospace',
             fill: '#fff',
@@ -293,6 +297,10 @@ var deathState = {
                 setBackgroundColor("#000000");
                 deaths = 0;
                 currentLevel = 0;
+                document.getElementById('audio0').play();
+            document.getElementById('audio8').pause();
+            document.getElementById('audio1').pause();
+            document.getElementById('audio4').pause();
             }
         }
         setDialog('between');
@@ -318,6 +326,10 @@ var endState = {
     preload: function () {
     },
     init: function() {
+            document.getElementById('audio0').pause();
+            document.getElementById('audio8').pause();
+            document.getElementById('audio1').pause();
+            document.getElementById('audio4').pause();
         this.titleText = game.make.text(game.world.centerX, game.world.centerY, "you can do much better.", {
             font: 'bold 40px monospace',
             fill: '#fff',
@@ -364,10 +376,34 @@ var levelCompleteState = {
             deaths = 0;
             if (currentLevel >= levels.length) {
                 game.state.start('end');
+
             }
         } else {
         }
-
+if(currentLevel == 8){
+            document.getElementById('audio0').pause();
+            document.getElementById('audio8').play();
+            document.getElementById('audio1').pause();
+            document.getElementById('audio4').pause();
+        }
+        else if(currentLevel == 4){
+            document.getElementById('audio0').pause();
+            document.getElementById('audio4').play();
+            document.getElementById('audio1').pause();
+            document.getElementById('audio8').pause();
+        }
+        else if(currentLevel == 1){
+            document.getElementById('audio0').pause();
+            document.getElementById('audio1').play();
+            document.getElementById('audio4').pause();
+            document.getElementById('audio8').pause();
+        }
+        else if(currentLevel == 0){
+            document.getElementById('audio0').play();
+            document.getElementById('audio1').pause();
+            document.getElementById('audio4').pause();
+            document.getElementById('audio8').pause();
+        }
         setDialog('between');
     },
     update: function() {
@@ -844,13 +880,14 @@ var mainState = {
         game.state.start('death');
     },
     passLevel: function() {
+        
         game.state.start('levelComplete');
     },
     onPlayerLeaveBounds: function () {
         this.death();
     }
 };
-
 var game = new Phaser.Game(440, 440,Phaser.AUTO,"container");
 game.state.add("beginning",beginningState);
 game.state.start('beginning');
+
