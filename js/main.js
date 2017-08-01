@@ -380,13 +380,13 @@ var levelCompleteState = {
             }
         } else {
         }
-if(currentLevel == 8){
+if(currentLevel == 9){
             document.getElementById('audio0').pause();
             document.getElementById('audio8').play();
             document.getElementById('audio1').pause();
             document.getElementById('audio4').pause();
         }
-        else if(currentLevel == 4){
+        else if(currentLevel == 5){
             document.getElementById('audio0').pause();
             document.getElementById('audio4').play();
             document.getElementById('audio1').pause();
