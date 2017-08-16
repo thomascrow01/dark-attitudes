@@ -133,6 +133,9 @@ function createCodeFromArray(arr) {
                 case 'D':
                     item = '7';
                     break;
+                    case 'p':
+                    item = '8';
+                    break;
             }
             code += item;
         }
@@ -178,6 +181,9 @@ function createArrayFromCode(code) {
             case 7:
                 item = 'D';
                 break;
+                case 8:
+                item = 'p'
+                break;
         }
 
         returnArr[y][x] = item;
@@ -222,6 +228,7 @@ var loadingState = {
         game.load.image('outline','assets/outline.png');
         game.load.spritesheet('door','assets/door.png', 20, 20);
         game.load.spritesheet('switch','assets/switch.png', 20, 20);
+        game.load.image('pushblock','assets/something.png', 20, 20);
     },
     create: function() {
         game.state.add('main', mainState);
@@ -330,7 +337,7 @@ var endState = {
             document.getElementById('audio8').pause();
             document.getElementById('audio1').pause();
             document.getElementById('audio4').pause();
-        this.titleText = game.make.text(game.world.centerX, game.world.centerY, "you can do much better.", {
+        this.titleText = game.make.text(game.world.centerX, game.world.centerY, "nice.", {
             font: 'bold 40px monospace',
             fill: '#fff',
             align: 'center'
@@ -480,6 +487,7 @@ var levelCreatorState = {
         this.playerKey = game.input.keyboard.addKey(Phaser.Keyboard.S);
         this.switchKey = game.input.keyboard.addKey(Phaser.Keyboard.Z);
         this.doorKey = game.input.keyboard.addKey(Phaser.Keyboard.X);
+        this.pushblockKey = game.input.keyboard.addKey(Phaser.Keyboard.F);
 
         this.deleteKey = game.input.keyboard.addKey(Phaser.Keyboard.E);
 
@@ -575,6 +583,9 @@ var levelCreatorState = {
                     } else if (this.map[i][j] == '!') {
                         var enemy = game.add.sprite(20+20*j,20+20*i,'enemy');
                         this.buildingBlocks.add(enemy);
+                    } else if (this.map[i][j] == 'p') {
+                        var pushblock = game.add.sprite(20+20*j,20+20*i,'pushblock');
+                        this.buildingBlocks.add(pushblock);
                     } else if (this.map[i][j] == '@') {
                         var player = game.add.sprite(20+20*j,20+20*i,'player');
                         this.buildingBlocks.add(player);
@@ -632,6 +643,11 @@ var levelCreatorState = {
             this.killSprites();
             this.map[this.cursor[1]][this.cursor[0]] = "s";
             this.buildingBlocks.add(game.add.sprite(20+20*this.cursor[0],20+20*this.cursor[1],'switch'));
+        } if(this.pushblockKey.isDown && (keyCD["pushblockKey"] < game.time.now || keyCD["pushblock3231`Key"] == undefined)){
+            keyCD["pushblockKey"] = game.time.now + 150;
+            this.killSprites();
+            this.map[this.cursor[1]][this.cursor[0]] = "p";
+            this.buildingBlocks.add(game.add.sprite(20+20*this.cursor[0],20+20*this.cursor[1],'pushblock'));
         }
         if(this.doorKey.isDown && (keyCD["doorKey"] < game.time.now || keyCD["doorKey"] == undefined)) {
             keyCD["doorKey"] = game.time.now + 150;
@@ -743,7 +759,8 @@ var mainState = {
         this.enemies = game.add.group(); // !
         this.switches = game.add.group(); // s
         this.doors = game.add.group(); // d
-        
+        this.pushblock = game.add.group(); //p
+
         // 20x20 level 
         
         var level = createMapFromArray(createArrayFromCode(levels[currentLevel]));
@@ -784,6 +801,10 @@ var mainState = {
                     var enemy = game.add.sprite(20+20*j,20+20*i,'enemy');
                     this.enemies.add(enemy);
                     enemy.body.immovable = true;
+                } else if (level[i][j] == 'p') {
+                    var pushblock = game.add.sprite(20+20*j,20+20*i,'pushblock');
+                    this.pushblock.add(pushblock);
+                    pushblock.body.immovable = false;
                 } else if (level[i][j] == '@') {
                     playerX = 20+20*j;
                     playerY = 20+20*i;
@@ -817,11 +838,16 @@ var mainState = {
     },
     update: function() {
         game.physics.arcade.collide(this.player,this.walls);
+        game.physics.arcade.collide(this.player,this.pushblock);
         game.physics.arcade.collide(this.player,this.doors, null, this.checkDoorCollision, this);
         game.physics.arcade.collide(this.player,this.switches, null, this.activateSwitch, this);
         game.physics.arcade.collide(this.player,this.coins, null, this.takeCoin, this);
         game.physics.arcade.collide(this.player,this.enemies, this.death, null, this);
-        
+        game.physics.arcade.collide(this.pushblock,this.coins, null, this.takeCoin, this);
+        game.physics.arcade.collide(this.pushblock,this.walls);
+        game.physics.arcade.collide(this.pushblock,this.enemies);
+        game.physics.arcade.collide(this.pushblock,this.doors, null, this.checkDoorCollision, this);
+        game.physics.arcade.collide(this.pushblock,this.switches, null, this.activateSwitch, this);
         
         if (this.cursor.left.isDown || this.keyA.isDown)
             this.player.body.velocity.x = -200;
@@ -890,4 +916,3 @@ var mainState = {
 var game = new Phaser.Game(440, 440,Phaser.AUTO,"container");
 game.state.add("beginning",beginningState);
 game.state.start('beginning');
-
